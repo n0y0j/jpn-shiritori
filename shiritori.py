@@ -36,7 +36,7 @@ if __name__ == "__main__":
         all_hira = dump.split()
 
     score = 0
-    # curr_res = []
+    curr_res = []
     start_word = random.choice(all_hira)
     answer = True
 
@@ -49,6 +49,13 @@ if __name__ == "__main__":
         if check == True:
             score += 1
             start_word = text[-1]
+
+            if len(curr_res) < 5:
+                curr_res.append(text)
+            else:
+                del curr_res[0]
+                curr_res.append(text)
+            print(curr_res)
         else:
             print(score)
             break
