@@ -1,6 +1,6 @@
-import sys
+import time
 import random
-import requests
+from selenium import webdriver
 from bs4 import BeautifulSoup
 
 
@@ -8,24 +8,34 @@ def shiritori(start_word: str, text: str, answer: bool) -> bool:
     check_text = ""
 
     if (start_word == text[0]):
-        source = requests.get(
-            "https://dic.daum.net/search.do?q=" + text)
-        soup = BeautifulSoup(source.content, "lxml")
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+
+        options.add_argument('disable-gpu')
+        driver = webdriver.Chrome(
+            '/usr/bin/chromedriver', chrome_options=options)
+        driver.get('https://ja.dict.naver.com/#/search?query=' + text)
+
+        time.sleep(3)
+
+        html = driver.page_source
+        soup = BeautifulSoup(html, "lxml")
+
         hotKeys = soup.select(
-            "div.search_cont div.card_word div.search_box div.cleanword_type.kujk_type div.search_cleanword strong.tit_cleansch a.txt_cleansch span.txt_emph1")
+            "div.component_keyword.has-saving-function div.row div.origin a.link strong.highlight")
 
         for key in hotKeys:
             check_text = key.get_text()
 
-        if (text == check_text):
-            mean_Keys = soup.select(
-                "div.search_cont div.card_word div.search_box div.cleanword_type.kujk_type ul.list_search li span.txt_search")
+            if (text == check_text):
+                mean_Keys = soup.select(
+                    "div.component_keyword.has-saving-function div.row ul.mean_list li.mean_item p.mean")
 
-            for mKey in mean_Keys:
-                print(mKey.get_text())
-            return True
-        else:
-            return False
+                for mKey in mean_Keys:
+                    print(mKey.get_text())
+                return True
+            else:
+                return False
     else:
         return False
 
